@@ -1,0 +1,111 @@
+	1. 使用弹性盒模型布局，必须为父元素添加如下属性：
+		a. 新版弹性盒模型：display：flex；
+		  
+		
+		b. 旧版弹性和模型：display：box; 或 display:inline-box;(webkit内核浏览器下为 display:-webkit-box; moz内核浏览器下为 display:-moz-box)
+	
+	2. 设置子元素布局方向（属性依然写在父元素上）
+		a. 新版弹性盒模型 flex-direction:row/column;（水平从左往右、垂直从上往下）
+		b. 旧版弹性盒模型  -webkit-box-orient:horizontal/vertical;
+	
+	
+	3. 设置子元素的排列顺序（方向）（属性依然写在父元素上）
+		a. 新版弹性盒模型 
+			i. 正序   flex-direction:row/column;（水平从左边开始从左往右、垂直从上边缘开始从上往下）
+			ii. 反序   flex-direction:row-reverse/column-reverse;（水平从右边开始从右向左、垂直从下边缘开始从下向上）
+		b. 旧版弹性盒模型  （需先设置盒模型布局方向，在设置元素排序顺序）
+			i. 正序   -webkit-box-orient:horizontal/vertical; -webkit-box-direction:normal;
+			ii. 反序  -webkit-box-orient:horizontal/vertical; -webkit-box-direction:reverse;
+	4. 主轴上富裕空间的管理
+		a. 新版  
+			i. justify-content:flex-start; /*元素在主轴开始位置，富裕空间在主轴结束位置*/
+			ii. justify-content:flex-end;   /*元素在主轴结束位置，富裕空间在主轴开始位置*/
+			iii. justify-content:center;      /*元素在主轴中间，富裕空间在主轴两侧*/
+			iv. justify-content:space-between;      /*富裕空间平均分配在每两个元素之间，相当于word里的两端对齐效果*/
+			v. justify-content:space-around;      /*富裕空间平均分配在每个元素两侧,，每个元素左右留白的位置是相等的*/
+			
+		
+			
+		b. 旧版  
+			i. -webkit-box-pack:start; /*元素在主轴开始位置，富裕空间在主轴结束位置*/
+			ii. -webkit-box-pack:end;   /*元素在主轴结束位置，富裕空间在主轴开始位置*/
+			iii. -webkit-box-pack:center;      /*元素在主轴中间，富裕空间在主轴两侧*/
+			iv. -webkit-box-pack:justify;      /*富裕空间平均分配在每两个元素之间，相当于word里的两端对齐效果*/
+			v. 无      /*富裕空间平均分配在每个元素两侧*/
+		
+	5. 侧轴上富裕空间的管理
+		a. 新版  
+			i. align-items:flex-start; /*元素在侧轴开始位置，富裕空间在侧轴结束位置*/
+			ii. align-items:flex-end;   /*元素在侧轴结束位置，富裕空间在侧轴开始位置*/
+			iii. align-items:center;      /*元素在侧轴中间，富裕空间在侧轴两侧*/
+			iv. align-items:baseline      /*根据侧轴方向上文字的基线对齐*/
+			
+		
+		
+		
+		
+		
+		b. 旧版  
+			i. -webkit-box-align:start; /*元素在侧轴开始位置，富裕空间在侧轴结束位置*/
+			ii. -webkit-box-align:end;   /*元素在侧轴结束位置，富裕空间在侧轴开始位置*/
+			iii. -webkit-box-align:center;      /*元素在侧轴中间，富裕空间在侧轴两侧*/
+
+
+	不定宽高的水平垂直居中（面试高频题）
+			a. css方法
+			
+			
+			b. flex-box方式
+			
+			
+			
+		
+			
+	6. Box-flex 定义盒子的弹性空间（给子元素添加属性，定义子元素的空间和尺寸） 
+
+	根据子元素个数，时刻自动充满父元素
+	
+	1）等比划分
+		
+	2）混合划分 （固定宽度+弹性盒子）
+		
+		
+	
+	
+		a. 新版  flex-grow
+			parentNode {display:flex;}
+			childNode {flex-grow:n}; /{flex:n} n,代表占父容器的比例，可以给所有子元素统一设置相同flex-grow属性值，也可以给单独某个子元素设置不同的flex-grow属性值
+		b. 旧版  box-flex
+			parentNode {display:-webkit-box;}
+			childNode {-webkit-box-flex:n}; 可以给所有子元素统一设置相同box-flex属性值，也可以给单独某个子元素设置不同的box-fle属性值
+			
+		c. 子元素尺寸=盒子的尺寸*子元素的box-flex属性值/所有子元素的box-flex属性值的和
+	7. 设置元素的特殊顺序（给子元素添加属性，单独控制）
+		a. 新版  order:n  order值可以为任意整数（包括负数和0）
+		b. 旧版  -webkit-box-ordinal-group:n  (n<=0时，默认当做1处理)
+	8. flex-wrap
+	
+	
+	
+	
+	
+	9. flex-flow 相当于把flex-direction和flex-wrap结合起来
+	flex-flow：flex-direction flex-wrap
+	10. align-self  子元素各自的排版方向
+	
+	
+	
+	11. align-content
+		子元素的换行方式
+		
+	
+	
+	
+	
+	
+	
+	
+	
+12.兼容性
+
+
