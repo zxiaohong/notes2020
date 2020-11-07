@@ -73,6 +73,7 @@ Scheduler的作用有两个：
 
 浏览器是一帧一帧执行的，在两个执行帧之间，主线程通常会有一小段空闲时间，requestIdleCallback可以在这个空闲期（Idle Period）调用空闲期回调（Idle Callback），执行一些任务。
 
+![requestIdleCallback.png](https://notes.s3.cn-north-1.jdcloud-oss.com/requestIdleCallback.png?AWSAccessKeyId=A850436F52857FDD372AF2752FBD98B0&Expires=1666928069&Signature=LTIDbfU4BBP%2B7QPHts8e6C1DqOo%3D)
 
 - 低优先级任务由requestIdleCallback处理；
 - 高优先级任务，如动画相关的由requestAnimationFrame处理；
