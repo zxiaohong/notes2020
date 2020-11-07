@@ -95,7 +95,7 @@ function workLoopConcurrent() {
 
 在React16中，Reconciler与Renderer不再是交替工作。当Scheduler将任务交给Reconciler后，Reconciler会为变化的虚拟DOM打上代表增/删/更新的标记，类似这样：
 ```js
-export const Placement = /*             */ 0b0000000000010;
+export const Placement = /*             */ 00000000000010;
 export const Update = /*                */ 0b0000000000100;
 export const PlacementAndUpdate = /*    */ 0b0000000000110;
 export const Deletion = /*              */ 0b0000000001000;
@@ -220,7 +220,7 @@ function App() {
   return (
     <div>
       i am
-<span>xiaohong</span>
+      <span>xiaohong</span>
     </div>
   )
 }
