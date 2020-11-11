@@ -73,10 +73,11 @@ Scheduler的作用有两个：
 
 浏览器是一帧一帧执行的，在两个执行帧之间，主线程通常会有一小段空闲时间，requestIdleCallback可以在这个空闲期（Idle Period）调用空闲期回调（Idle Callback），执行一些任务。
 
-![requestIdleCallback.png](https://notes.s3.cn-north-1.jdcloud-oss.com/requestIdleCallback.png?AWSAccessKeyId=A850436F52857FDD372AF2752FBD98B0&Expires=1666928069&Signature=LTIDbfU4BBP%2B7QPHts8e6C1DqOo%3D)
+![3ef2a0b6f7bb2e82982f00ea63750c1c.png](evernotecid://4360BD77-FECC-45AB-A570-866A031A45EF/appyinxiangcom/22992045/ENResource/p63)
 
-- 低优先级任务由requestIdleCallback处理；
+
 - 高优先级任务，如动画相关的由requestAnimationFrame处理；
+- - 低优先级任务由requestIdleCallback处理；
 - requestIdleCallback可以在多个空闲期调用空闲期回调，执行任务；
 - requestIdleCallback方法提供 deadline，即任务执行限制时间，以切分任务，避免长时间执行，阻塞UI渲染而导致掉帧；
 
@@ -96,7 +97,7 @@ function workLoopConcurrent() {
 
 在React16中，Reconciler与Renderer不再是交替工作。当Scheduler将任务交给Reconciler后，Reconciler会为变化的虚拟DOM打上代表增/删/更新的标记，类似这样：
 ```js
-export const Placement = /*             */ 00000000000010;
+export const Placement = /*             */ 0b0000000000010;
 export const Update = /*                */ 0b0000000000100;
 export const PlacementAndUpdate = /*    */ 0b0000000000110;
 export const Deletion = /*              */ 0b0000000001000;
@@ -221,7 +222,7 @@ function App() {
   return (
     <div>
       i am
-      <span>xiaohong</span>
+<span>xiaohong</span>
     </div>
   )
 }
@@ -252,10 +253,106 @@ React应用的根节点通过current指针在不同Fiber树的rootFiber间切换
 当workInProgress Fiber树构建完成交给Renderer渲染在页面上后，应用根节点的current指针指向workInProgress Fiber树，此时workInProgress Fiber树就变为current Fiber树。
 
 每次状态更新都会产生新的workInProgress Fiber树，通过current与workInProgress的替换，完成DOM更新。
+![40acf8b43414ffb7c171f541f4938827.png](evernotecid://4360BD77-FECC-45AB-A570-866A031A45EF/appyinxiangcom/22992045/ENResource/p68)
+我们以下面的小例子，来描述fiber数构建和更新时流程：
+```js
+function App() {
+  const [num, add] = useState(0);
+  return (
+    <p onClick={() => add(num + 1)}>{num}</p>
+  )
+}
+
+ReactDOM.render(<App/>, document.getElementById('root'));
+```
+mount时：
+![a48cf26e3982af24c441831c1573f09a.png](evernotecid://4360BD77-FECC-45AB-A570-866A031A45EF/appyinxiangcom/22992045/ENResource/p69)
+首次执行`ReactDOM.render`会创建`fiberRootNode`（源码中叫fiberRoot）和`rootFiber`。其中`fiberRootNode`是整个应用的根节点，`rootFiber`是所在组件树的根节点。
+之所以要区分f`iberRootNode`与`rootFiber`，是因为在应用中我们可以多次调用`ReactDOM.render`渲染不同的组件树，他们会拥有不同的`rootFiber`。但是整个应用的根节点只有一个，那就是`fiberRootNode`。
+`fiberRootNode`的current会指向当前页面上已渲染内容对应对Fiber树，被称为current Fiber树。
+首屏渲染时，页面中还没有挂载任何DOM，所以`fiberRootNode.current`指向的rootFiber没有任何子Fiber节点（即current Fiber树为空）；
+
+
+接下来进入render阶段，首先会根据`fiberRootNode`的current节点（即current `rootFiber`节点）创建workInProgress `rootFibe`r节点，并将它们通过`alternate`属性链接起来，然后根据组件返回的JSX在内存中依次创建Fiber节点并连接在一起构建Fiber树，被称为workInProgress Fiber树。（下图中右侧为内存中构建的树，左侧为页面显示的树）
+
+![b2e8a6dfb024bee8d3e478a58593d696.png](evernotecid://4360BD77-FECC-45AB-A570-866A031A45EF/appyinxiangcom/22992045/ENResource/p70)
+![338da42c53bbbad410e7a1babe875f89.png](evernotecid://4360BD77-FECC-45AB-A570-866A031A45EF/appyinxiangcom/22992045/ENResource/p71)
+
+建完的workInProgress Fiber树在commit阶段渲染到页面。
+`fiberRootNode`的current指针指向workInProgress Fiber树使其变为current Fiber 树。
+
+![e9fafc848dcdfdf6f596e80179b60e80.png](evernotecid://4360BD77-FECC-45AB-A570-866A031A45EF/appyinxiangcom/22992045/ENResource/p72)
+
+**update**时：
+更新时，会构建一颗新的workInProgress Fiber 树, 同样首先会根据`fiberRootNode`的current节点（即current `rootFiber`节点）创建workInProgress `rootFibe`r节点，并将它们通过`alternate`属性链接起来，然后根据组件返回的JSX在内存中依次创建Fiber节点并连接在一起构建Fiber树，被称为workInProgress Fiber树。在构建workInProgress Fiber的构建会复用可复用的current Fiber.
+> 这里判断已有节点是否可复用的流程就是Diff算法；
+
+
 
 ### React 工作流程
 
 #### 首屏渲染
 
+即使是一个简单的DOM渲染，React的调用栈中也调用了大量的函数，我们把整个执行过程按照调用栈来划分，可以分为三个阶段
+![cd936b946169c55a77229b64b1beae42.png](evernotecid://4360BD77-FECC-45AB-A570-866A031A45EF/appyinxiangcom/22992045/ENResource/p59)
+分别对应了源码架构中的三大模块：调度 → 协调 → 渲染
+![60d9f70bb2e106048a723d8cc0c22215.png](evernotecid://4360BD77-FECC-45AB-A570-866A031A45EF/appyinxiangcom/22992045/ENResource/p60)
 
 
+首屏渲染：
+![6d22a0a36801e0c11769b33a53a1d48d.png](evernotecid://4360BD77-FECC-45AB-A570-866A031A45EF/appyinxiangcom/22992045/ENResource/p73)
+
+
+调用`ReactDOM.render(element, root)`时，React会调用`createElementWithValidation`将`element`组件，解析为`ReactElement`对象，格式如下：
+```js
+{
+    $$typeof: Symbol(react.element)
+    key: null
+    props: {}
+    ref: null
+    type: ƒ App()
+    _owner: null
+    _store: {validated: false}
+    _self: null
+    _source: {fileName: "/Users/zhaohongyun1/xh-project/react源码/testdemo/src/index.js", lineNumber: 6, columnNumber: 17}
+    __proto__: Object
+}
+```
+
+然后调用`ReactDOM.render`方法，执行`legacyRenderSubtreeIntoContainer`--`legacyCreateRootFromDOMContainer`--`createRootImpl`--`createLegacyRoot`--`createHostRootFiber`--`createFiberRoot`,创建`fiberRootNode`和`rootFiber`,并把`fiberRootNode`的current执向`rootFiber`， `rootFiber`的stateNode属性指向`fiberRootNode`,
+
+在`createFiberRoot`中还会初始化`updateQueue`,挂载在`rootFiber`节点上,update对象格式为：`{baseState: null,effects: null,firstBaseUpdate: null,lastBaseUpdate: null,shared: {pending: null}}`
+
+```js
+// ReactFiberRoot.old.js
+
+export function createFiberRoot(
+  containerInfo: any,
+  tag: RootTag,
+  hydrate: boolean,
+  hydrationCallbacks: null | SuspenseHydrationCallbacks,
+): FiberRoot {
+// 创建fiberRootNode
+  const root: FiberRoot = (new FiberRootNode(containerInfo, tag, hydrate): any);
+  if (enableSuspenseCallback) {
+    root.hydrationCallbacks = hydrationCallbacks;
+  }
+
+  // 创建rootFiber节点
+  const uninitializedFiber = createHostRootFiber(tag);
+  // 把fiberRootNode的current执向rootFiber，rootFiber的stateNode属性执向fiberRootNode,
+  root.current = uninitializedFiber;
+  uninitializedFiber.stateNode = root;
+  //初始化 updateQueue,挂载在rootFiber节点上
+  initializeUpdateQueue(uninitializedFiber);
+
+  return root;
+}
+```
+
+接下来进入`unbatchedUpdates`的回调函数执行`updateContainer`, 创建`update`对象（`var update = createUpdate(eventTime, lane, suspenseConfig);`）然后将`ReactDOM.render`方法的生成的element对象，放在upldat的payl属性中
+```js
+ update.payload = {
+    element: element
+  };
+```
